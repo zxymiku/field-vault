@@ -1,12 +1,53 @@
 # FIELD VAULT · 场站验证库
 
-桌面端 2FA 验证程序 (TOTP/HOTP)。支持调度电脑摄像头、扫描图片、扫描屏幕三种方式识别二维码完成绑定。
+桌面端 2FA 验证程序（TOTP/HOTP），支持三种二维码来源完成绑定：**电脑摄像头**、**图片**（拖放 / 粘贴 / 选择）、**屏幕捕获**（系统选源 + 应用内拖拽框选区域精扫）。
 
-- 技术栈: Tauri 2 + React 19 + TypeScript
-- 设计语言: ark-ui skill — endfield 家族 × maximal 深度
-- 开发: `npm install` 后运行 `npm run tauri dev`
+设计语言：ark-ui skill — **endfield 家族 × maximal 深度**（纸白/炭黑双主题、信号黄动作系统、契形倒计时仪表、工程网格舞台分层），双语界面（中文主体 + 英文微标签）。
+
+## 功能
+
+| 模块 | 说明 |
+|---|---|
+| 验证器库 | 实时 TOTP 码（30/60s）、契形倒计时（临界闪烁）、HOTP 计数递增、搜索 |
+| 扫描台 | 摄像头实时取景 / 图片拖放+Ctrl+V / 屏幕捕获+拖拽框选；Google Authenticator 迁移码批量导入 |
+| 保险库 | 主密码加密（PBKDF2 600k + AES-256-GCM）或明文模式（首启自选）；恢复密钥（一次性展示，忘记密码可重设主密码） |
+| 备份 | 密码加密备份导出（复制 JSON）/ 导入合并（自动去重） |
+| 系统集成 | 托盘常驻（可在设置关闭，关闭后 X 即退出）、复制后 N 秒自动清空剪贴板 |
+| 主题 | endfield 纸白（官方基准）/ endfield 炭黑反转，一键切换 |
+
+## 开发运行
+
+```bash
+npm install
+npm run tauri dev
+```
+
+- 依赖：Node ≥ 20、Rust（MSVC）、Windows 10/11（WebView2 预装）
+- 首次 Rust 编译较慢（约 5–15 分钟，已配置 crates.io 清华源加速）
+- 数据存放：`%APPDATA%/com.zxymiku.fieldvault/`（`vault.json` + `settings.json`）
+
+## 浏览器降级模式（QA）
+
+`npm run dev` 后访问 `http://localhost:1420` 可在纯浏览器中运行 UI（无 Tauri IPC 时自动降级 localStorage），便于界面调试与自动化测试；摄像头/屏幕捕获/托盘为 Tauri/WebView2 专属能力。
+
+## 安全模型
+
+- **加密模式**：账户数据由随机主密钥 AES-256-GCM 加密；主密钥分别被「主密码派生密钥」与「恢复密钥派生密钥」封装（双密钥槽位）。磁盘文件无密码/恢复密钥不可读。
+- **忘记主密码**：凭初始化时一次性展示的恢复密钥解锁并重设主密码；两者皆失只能重置保险库（删除全部数据重新初始化）。
+- **明文模式**：首启可显式选择，界面有风险警示；任何本机程序可读取密钥。
+- 剪贴板自动清除默认 15 秒，可调 0–300 秒或关闭。
+
+## 已知限制
+
+- WebView2 摄像头权限一次拒绝后不会再次弹窗——需删除 `%LOCALAPPDATA%/com.zxymiku.fieldvault/EBWebView/` 复位（应用内错误提示有说明）
+- 屏幕扫描每次会弹出系统选源对话框（浏览器安全规范要求用户激活）
+- 密钥（secret）在账户档案中默认模糊遮罩，可显隐切换
 
 ## 工作流约定
 
 - **禁止直接向 main 提交代码**——所有改动一律通过 Pull Request 合入
 - 一个 PR 尽量只包含一个 commit（必要时 squash merge）
+
+## 技术栈
+
+Tauri 2 · React 19 · TypeScript · Vite · jsQR · WebCrypto（自研 TOTP/HOTP/vault-crypto，无重型依赖）
