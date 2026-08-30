@@ -52,7 +52,7 @@ interface AppContextValue {
   settings: Settings;
   accounts: AccountRecord[];
   setAccounts: (next: AccountRecord[]) => Promise<void>;
-  createVault: (mode: "encrypted" | "plaintext", password: string) => Promise<void>;
+  createVault: (mode: "encrypted" | "plaintext", password: string, recoveryKey?: string) => Promise<void>;
   unlock: (password: string) => Promise<void>;
   unlockWithRecoveryKey: (recovery: string) => Promise<void>;
   completeRekey: (newPassword: string) => Promise<void>;
@@ -154,7 +154,7 @@ export function AppProvider(props: { children: ReactNode }) {
     [persistAccounts],
   );
 
-  const createVault = useCallback(async (mode: "encrypted" | "plaintext", password: string) => {
+  const createVault = useCallback(async (mode: "encrypted" | "plaintext", password: string, recoveryKey?: string) => {
     if (mode === "plaintext") {
       const file: VaultFile = { format: "field-vault-v1", encrypted: false, accounts: [] };
       await writeVaultFile(file);
@@ -162,7 +162,7 @@ export function AppProvider(props: { children: ReactNode }) {
       masterKeyRef.current = null;
       setAccountsState([]);
     } else {
-      const { file } = await createEncryptedVault([], password);
+      const { file } = await createEncryptedVault([], password, recoveryKey);
       await writeVaultFile(file);
       vaultRef.current = file;
       masterKeyRef.current = await unlockWithPassword(file, password);

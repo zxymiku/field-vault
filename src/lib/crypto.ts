@@ -103,13 +103,15 @@ function slotOf(file: EncryptedVaultFile, id: KeySlot["id"]): KeySlot {
 export async function createEncryptedVault(
   accountsJson: string,
   password: string,
+  recoveryKeyInput?: string,
 ): Promise<{ file: EncryptedVaultFile; recoveryKey: string }> {
   const dk = randomBytes(32);
   const pwSalt = randomBytes(16);
   const pwKey = await deriveKey(enc.encode(password), pwSalt, PBKDF2_ITERATIONS);
   const pwWrapped = await aesEncrypt(pwKey, dk);
 
-  const recoveryRaw = randomBytes(20);
+  // Use the exact key the user saw (or mint one when creating blind).
+  const recoveryRaw = recoveryKeyInput != null ? fromB64Safe(normalizeRecoveryKey(recoveryKeyInput)) : randomBytes(20);
   const recSalt = randomBytes(16);
   const recoverySlot = await wrapDk(recoveryRaw, recSalt, dk, "recovery");
 

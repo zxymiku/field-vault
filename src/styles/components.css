@@ -117,6 +117,8 @@
 /* ---------- action button ---------- */
 .ark-btn {
   position: relative;
+  flex: none;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -965,4 +967,26 @@
 
 .settings-align-end {
   align-items: flex-end;
+}
+
+/* ---------- reduced-motion static parity (per-file parity with base.css) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ark-readout__code[data-critical="true"],
+  .ark-wedge[data-critical="true"]::before,
+  .ark-baseline__sig {
+    animation: none;
+  }
+  .ark-readout__code[data-critical="true"] {
+    background: var(--ark-signal);
+    color: var(--ark-on-signal);
+  }
+  .ark-modal__panel,
+  .ark-view-enter {
+    animation: none;
+  }
+  .ark-reveal {
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
 }
