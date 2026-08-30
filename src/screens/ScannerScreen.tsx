@@ -5,6 +5,8 @@ import type { OtpType } from "../lib/otp";
 import { decodeFile, decodeVideoFrame, decodeVideoRegion } from "../lib/qr";
 import BindConfirm from "./BindConfirm";
 import { ArkButton, Icon, Panel, SectionTitle } from "../ui/ark";
+import { adapter } from "../lib/tauri";
+import { parseSteamAuthText } from "../lib/steam";
 
 type Mode = "camera" | "image" | "screen" | "manual";
 
@@ -130,6 +132,8 @@ function ManualEntry(props: { onCandidates: (list: OtpUri[]) => void }) {
   return (
     <Panel head="MANUAL · 手动添加" brackets raised>
       <div className="stack">
+        <SteamImport onCandidates={props.onCandidates} />
+        <div className="ark-section__rule" aria-hidden="true" />
         <label className="ark-field">
           <span className="ark-field__label">粘贴 otpauth 链接 / PASTE URI</span>
           <textarea
@@ -191,6 +195,138 @@ function ManualEntry(props: { onCandidates: (list: OtpUri[]) => void }) {
         </ArkButton>
       </div>
     </Panel>
+  );
+}
+
+/* ================= steam local import ================= */
+
+interface SteamAuthEntryView {
+  path: string;
+  account_name: string;
+  steam_id: string | null;
+  source: string;
+}
+
+function SteamImport(props: { onCandidates: (list: OtpUri[]) => void }) {
+  const [scanning, setScanning] = useState(false);
+  const [entries, setEntries] = useState<SteamAuthEntryView[] | null>(null);
+  const [localAccounts, setLocalAccounts] = useState<string[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function importEntry(path: string) {
+    setError(null);
+    void (async () => {
+      const text = await adapter.readSteamAuthFile(path);
+      if (text == null) {
+        setError("读取文件失败 / FAILED TO READ FILE");
+        return;
+      }
+      try {
+        props.onCandidates(parseSteamAuthText(text).map((e) => e.uri));
+      } catch (e) {
+        setError(
+          e instanceof Error && e.message === "STEAM_ENCRYPTED"
+            ? "该数据文件已加密——请先在原工具（SDA）中解密后重试"
+            : "文件中未找到有效的共享密钥 / NO VALID SHARED SECRET",
+        );
+      }
+    })();
+  }
+
+  function scan() {
+    setError(null);
+    setScanning(true);
+    void (async () => {
+      try {
+        const raw = await adapter.scanSteamAuth();
+        if (raw == null) {
+          setEntries([]);
+          setLocalAccounts(null);
+          return;
+        }
+        const parsed = JSON.parse(raw) as {
+          auth_files: SteamAuthEntryView[];
+          local_accounts: { account_name: string }[];
+        };
+        setEntries(parsed.auth_files);
+        setLocalAccounts(parsed.local_accounts.map((a) => a.account_name));
+      } finally {
+        setScanning(false);
+      }
+    })();
+  }
+
+  function importPicked(file: File) {
+    void file.text().then((text) => {
+      try {
+        props.onCandidates(parseSteamAuthText(text).map((e) => e.uri));
+      } catch (e) {
+        setError(
+          e instanceof Error && e.message === "STEAM_ENCRYPTED"
+            ? "该数据文件已加密——请先在原工具（SDA）中解密后重试"
+            : "文件中未找到有效的共享密钥 / NO VALID SHARED SECRET",
+        );
+      }
+    });
+  }
+
+  return (
+    <div className="stack steam-import">
+      <p className="hint">
+        官方 Steam 客户端不存储令牌密钥；本功能自动发现本机第三方桌面验证器（Steam Desktop Authenticator 的
+        .maFile / steamguard-cli 的 steamguard.json）并导入。仅导入生成验证码所需的 shared_secret。
+        <span className="en-only"> / SCAN LOCAL SDA / STEAMGUARD-CLI DATA — SHARED SECRET ONLY</span>
+      </p>
+      <div className="row-gap">
+        <ArkButton variant="primary" icon="key" onClick={scan} disabled={scanning}>
+          {scanning ? "扫描中… / SCANNING" : "自动扫描本机 / AUTO SCAN"}
+        </ArkButton>
+        <ArkButton onClick={() => fileRef.current?.click()}>选择文件 / PICK FILE</ArkButton>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".maFile,.json,application/json"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f != null) importPicked(f);
+            e.target.value = "";
+          }}
+        />
+      </div>
+      {localAccounts != null && localAccounts.length > 0 && (
+        <p className="hint">
+          本机 Steam 客户端登录过的账号：{localAccounts.join("、")}
+          <span className="en-only"> / ACCOUNTS KNOWN TO THE LOCAL STEAM CLIENT</span>
+        </p>
+      )}
+      {entries != null && entries.length > 0 && (
+        <ul className="batch-list">
+          {entries.map((en) => (
+            <li key={en.path + en.account_name}>
+              <strong>Steam</strong>
+              <span> · {en.account_name}</span>
+              {en.steam_id != null && <span className="steam-id"> · {en.steam_id.slice(0, 10)}…</span>}
+              <span className="ark-chip">{en.source}</span>
+              <ArkButton onClick={() => importEntry(en.path)}>导入 / IMPORT</ArkButton>
+            </li>
+          ))}
+        </ul>
+      )}
+      {entries != null && entries.length === 0 && (
+        <p className="hint">
+          未在本机常见位置发现 Steam 验证器数据文件。若令牌只装在手机上，请先用 SDA 等工具在 PC
+          上完成桌面验证器登记，或改用「手动添加」。
+          <span className="en-only"> / NOTHING FOUND — SEE MANUAL ENTRY</span>
+        </p>
+      )}
+      {error != null && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

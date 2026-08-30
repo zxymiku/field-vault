@@ -667,6 +667,21 @@
    FIELD VAULT — scanner
    ============================================================ */
 
+.steam-import .batch-list li {
+  gap: 0.6rem;
+}
+
+.steam-id {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--ark-muted);
+}
+
+.steam-import .ark-btn {
+  margin-left: auto;
+}
+
+
 .scanner-view {
   position: relative;
   display: flex;

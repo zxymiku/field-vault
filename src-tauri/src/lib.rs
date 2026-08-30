@@ -1,6 +1,7 @@
 // FIELD VAULT — desktop 2FA authenticator.
 // Rust side stays thin: window/tray management and file IO for the vault.
 
+mod steam;
 mod store;
 mod tray;
 
@@ -19,6 +20,8 @@ pub fn run() {
             store::delete_vault,
             store::read_settings,
             store::write_settings,
+            steam::scan_steam_auth,
+            steam::read_steam_auth_file,
             tray::set_tray_enabled,
         ])
         .setup(|app| {
