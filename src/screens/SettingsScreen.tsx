@@ -151,6 +151,36 @@ export default function SettingsScreen() {
           </label>
           <div className="settings-row">
             <span>
+              窗口置顶（悬浮在其他窗口之上）
+              <span className="en-only"> / ALWAYS ON TOP</span>
+            </span>
+            <label className="check-row">
+              <input
+                type="checkbox"
+                aria-label="窗口置顶 / ALWAYS ON TOP"
+                checked={settings.alwaysOnTop}
+                onChange={(e) => void updateSettings({ alwaysOnTop: e.target.checked })}
+              />
+            </label>
+          </div>
+          <div className="settings-row">
+            <span>
+              自动锁定（分钟无操作后锁回加密库，0 = 不启用）
+              <span className="en-only"> / AUTO-LOCK AFTER IDLE (MINUTES)</span>
+            </span>
+            <input
+              className="ark-field__input settings-num"
+              type="number"
+              min={0}
+              max={240}
+              value={settings.autoLockMinutes}
+              onChange={(e) =>
+                void updateSettings({ autoLockMinutes: Math.max(0, Math.min(240, Number(e.target.value) || 0)) })
+              }
+            />
+          </div>
+          <div className="settings-row">
+            <span>
               复制后清空剪贴板（秒，0 = 不清空）
               <span className="en-only"> / CLIPBOARD AUTO-CLEAR (SECONDS)</span>
             </span>

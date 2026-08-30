@@ -68,6 +68,12 @@ export const adapter = {
   readSteamAuthFile: (path: string): Promise<string | null> =>
     isTauri ? invoke<string>('read_steam_auth_file', { path }).catch(() => null) : Promise.resolve(null),
 
+  setAlwaysOnTop: async (enabled: boolean): Promise<void> => {
+    if (!isTauri) return;
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().setAlwaysOnTop(enabled);
+  },
+
   setTrayEnabled: (enabled: boolean): Promise<void> =>
     isTauri ? invoke("set_tray_enabled", { enabled }) : Promise.resolve(),
 };
