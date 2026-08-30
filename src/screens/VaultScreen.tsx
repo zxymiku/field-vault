@@ -58,7 +58,7 @@ function useVaultCodes(accounts: AccountRecord[], now: number): Map<string, Code
   return codes;
 }
 
-export default function VaultScreen(props: { onScan: () => void }) {
+export default function VaultScreen(props: { onScan: () => void; onOpen: (a: AccountRecord) => void }) {
   const { accounts, settings, toast, setAccounts } = useApp();
   const now = useNow();
   const codes = useVaultCodes(accounts, now);
@@ -151,7 +151,16 @@ export default function VaultScreen(props: { onScan: () => void }) {
             const state = codes.get(a.id);
             const critical = state?.critical ?? false;
             return (
-              <li key={a.id} className="acct-row" data-critical={critical ? "true" : undefined}>
+              <li
+                key={a.id}
+                className="acct-row acct-row--clickable"
+                data-critical={critical ? "true" : undefined}
+                onClick={() => props.onOpen(a)}
+                onKeyDown={(e) => e.key === "Enter" && props.onOpen(a)}
+                tabIndex={0}
+                role="button"
+                aria-label={`打开 ${a.issuer} 详情`}
+              >
                 <span className="acct-row__idx" aria-hidden="true">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -172,8 +181,18 @@ export default function VaultScreen(props: { onScan: () => void }) {
                     <Icon name="plus" />
                   </button>
                 )}
+                <button type="button" className="acct-row__copy" aria-label={`打开 ${a.issuer} 详情`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.onOpen(a);
+                  }}>
+                  <Icon name="edit" />
+                </button>
                 <button type="button" className="acct-row__copy" aria-label={`复制验证码 ${a.issuer}`}
-                  onClick={() => void copyCode(a)}>
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void copyCode(a);
+                  }}>
                   <Icon name="copy" />
                 </button>
               </li>

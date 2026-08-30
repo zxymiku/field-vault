@@ -56,6 +56,8 @@ interface AppContextValue {
   unlock: (password: string) => Promise<void>;
   unlockWithRecoveryKey: (recovery: string) => Promise<void>;
   completeRekey: (newPassword: string) => Promise<void>;
+  changePassword: (current: string, next: string) => Promise<void>;
+  resetVault: () => Promise<void>;
   lock: () => void;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
   toast: (msg: string) => void;
@@ -199,6 +201,24 @@ export function AppProvider(props: { children: ReactNode }) {
     setPhase("ready");
   }, []);
 
+  const changePassword = useCallback(async (current: string, next: string) => {
+    const file = vaultRef.current;
+    if (file == null || !isEncryptedFile(file)) throw new Error("PLAINTEXT_MODE");
+    await unlockWithPassword(file, current); // verify; throws BAD_PASSWORD
+    const dk = masterKeyRef.current ?? (await unlockWithPassword(file, current));
+    const updated = await rekeyPassword(file, masterKeyToB64(dk), next);
+    vaultRef.current = updated;
+    masterKeyRef.current = dk;
+  }, []);
+
+  const resetVault = useCallback(async () => {
+    await adapter.deleteVault().catch(() => undefined);
+    vaultRef.current = null;
+    masterKeyRef.current = null;
+    setAccountsState([]);
+    setPhase("setup");
+  }, []);
+
   const lock = useCallback(() => {
     const file = vaultRef.current;
     if (file != null && isEncryptedFile(file)) {
@@ -231,12 +251,14 @@ export function AppProvider(props: { children: ReactNode }) {
       unlock,
       unlockWithRecoveryKey,
       completeRekey,
+      changePassword,
+      resetVault,
       lock,
       updateSettings,
       toast,
       toastMsg,
     }),
-    [phase, settings, accounts, setAccounts, createVault, unlock, unlockWithRecoveryKey, completeRekey, lock, updateSettings, toast, toastMsg],
+    [phase, settings, accounts, setAccounts, createVault, unlock, unlockWithRecoveryKey, completeRekey, changePassword, resetVault, lock, updateSettings, toast, toastMsg],
   );
 
   return <Ctx.Provider value={value}>{props.children}</Ctx.Provider>;

@@ -844,3 +844,125 @@
   grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: 0.8rem;
 }
+
+/* ============================================================
+   FIELD VAULT — account dossier modal + settings
+   ============================================================ */
+
+.acct-row--clickable {
+  cursor: pointer;
+}
+
+.ark-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.ark-modal__shade {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ark-ink), transparent 40%);
+  border: 0;
+  cursor: default;
+}
+
+.ark-modal__panel {
+  position: relative;
+  width: min(38rem, 100%);
+  max-height: min(80svh, 44rem);
+  overflow-y: auto;
+  animation: ark-view-in var(--ark-motion-reveal) var(--ark-ease) both;
+}
+
+.ark-modal__close {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.9rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.ark-modal__close:hover {
+  background: var(--ark-signal);
+  color: var(--ark-on-signal);
+}
+
+.secret-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.secret-line__row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.secret-line__value {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 0.7rem;
+  border: 1px dashed var(--ark-line-strong);
+  background: var(--ark-bg);
+  user-select: all;
+  word-break: break-all;
+}
+
+.secret-line__value--masked {
+  filter: blur(4px);
+  user-select: none;
+}
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 52rem;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--ark-line);
+  flex-wrap: wrap;
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+}
+
+.settings-row > span {
+  font-size: 0.9rem;
+}
+
+.settings-row--danger {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--ark-line-strong);
+  border-bottom: 0;
+}
+
+.settings-num {
+  width: 6rem;
+  text-align: center;
+}
+
+.settings-num--wide {
+  width: 12rem;
+  text-align: left;
+}
+
+.settings-align-end {
+  align-items: flex-end;
+}

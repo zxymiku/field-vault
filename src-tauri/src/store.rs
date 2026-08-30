@@ -41,6 +41,16 @@ pub fn write_vault(app: AppHandle, contents: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub fn delete_vault(app: AppHandle) -> Result<(), String> {
+    let path = data_file(&app, VAULT_FILE)?;
+    match fs::remove_file(path) {
+        Ok(()) => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
 pub fn read_settings(app: AppHandle) -> Result<Option<String>, String> {
     read_file(&app, SETTINGS_FILE)
 }

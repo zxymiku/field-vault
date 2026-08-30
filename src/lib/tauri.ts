@@ -29,6 +29,9 @@ export const adapter = {
   writeVault: (contents: string): Promise<void> =>
     isTauri ? invoke("write_vault", { contents }) : Promise.resolve(lsSet("fv.vault", contents)),
 
+  deleteVault: (): Promise<void> =>
+    isTauri ? invoke("delete_vault") : Promise.resolve(lsSet("fv.vault", "")),
+
   readSettings: (): Promise<string | null> =>
     isTauri ? invoke<string | null>("read_settings") : Promise.resolve(lsGet("fv.settings")),
 
