@@ -60,6 +60,14 @@ export const adapter = {
     }
   },
 
+  scanSteamAuth: (): Promise<string | null> =>
+    isTauri
+      ? invoke<string>('scan_steam_auth').then((r) => JSON.stringify(r)).catch(() => null)
+      : Promise.resolve(null),
+
+  readSteamAuthFile: (path: string): Promise<string | null> =>
+    isTauri ? invoke<string>('read_steam_auth_file', { path }).catch(() => null) : Promise.resolve(null),
+
   setTrayEnabled: (enabled: boolean): Promise<void> =>
     isTauri ? invoke("set_tray_enabled", { enabled }) : Promise.resolve(),
 };

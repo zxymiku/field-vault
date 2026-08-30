@@ -11,6 +11,7 @@
 | 验证器库 | 实时 TOTP 码（30/60s）、契形倒计时（临界闪烁）、HOTP 计数递增、搜索 |
 | 扫描台 | 摄像头实时取景 / 图片拖放+Ctrl+V / 屏幕捕获+拖拽框选 / **手动输入文本密钥或粘贴 otpauth 链接**；Google Authenticator 迁移码批量导入 |
 | 令牌风格 | 标准 TOTP/HOTP（6/8 位）+ **Steam Guard 5 字符码**（issuer 含 Steam/Valve 自动识别） |
+| Steam 导入 | **自动扫描本机** Steam Desktop Authenticator（.maFile）/ steamguard-cli（steamguard.json）数据文件导入令牌；识别 Steam 客户端登录账号（loginusers.vdf）；仅导入 shared_secret |
 | 保险库 | 主密码加密（PBKDF2 600k + AES-256-GCM）或明文模式（首启自选）；恢复密钥（一次性展示，忘记密码可重设主密码） |
 | 备份 | 密码加密备份导出（复制 JSON）/ 导入合并（自动去重） |
 | 系统集成 | 托盘常驻（可在设置关闭，关闭后 X 即退出）、复制后 N 秒自动清空剪贴板 |
@@ -71,6 +72,16 @@ npm run tauri build -- --bundles nsis
 - **忘记主密码**：凭初始化时一次性展示的恢复密钥解锁并重设主密码；两者皆失只能重置保险库（删除全部数据重新初始化）。
 - **明文模式**：首启可显式选择，界面有风险警示；任何本机程序可读取密钥。
 - 剪贴板自动清除默认 15 秒，可调 0–300 秒或关闭。
+
+## Steam 本机导入说明
+
+官方 Steam PC 客户端**不存储**可生成令牌的密钥（Steam Guard 密钥只在手机 App 或第三方桌面验证器中）。「自动扫描本机」搜索以下位置：
+
+- 、（递归）与 Steam Desktop Authenticator 安装目录下的 
+-  与 
+- （仅读取登录账号名用于身份确认）
+
+注意：已加密的 maFile 需先在原工具中解密；（交易确认密钥）不会被导入。
 
 ## 已知限制
 
