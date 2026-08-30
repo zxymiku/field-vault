@@ -343,3 +343,145 @@
     transform: none;
   }
 }
+
+/* ============================================================
+   FIELD VAULT — auth screens (setup wizard, lock)
+   ============================================================ */
+
+.lock-stage {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.lock-card {
+  position: relative;
+  width: min(30rem, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mode-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.mode-card {
+  position: relative;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem 1.9rem;
+  background: var(--ark-bg);
+  border: 1px solid var(--ark-line-strong);
+  border-radius: var(--ark-radius);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: border-color var(--ark-motion-direct) var(--ark-ease), background var(--ark-motion-direct) var(--ark-ease);
+}
+
+.mode-card:hover,
+.mode-card:focus-visible {
+  border-color: var(--ark-ink);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ark-signal), transparent 80%), transparent 40%);
+}
+
+.mode-card__en {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: var(--ark-muted);
+}
+
+.mode-card p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--ark-muted);
+  line-height: 1.55;
+}
+
+.mode-card__tag {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--ark-ink);
+  background: var(--ark-signal);
+  padding: 0.1rem 0.4rem;
+}
+
+.mode-card__tag--warn {
+  background: var(--ark-line-strong);
+}
+
+.recovery-key {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  letter-spacing: 0.14em;
+  padding: 0.8rem 0.9rem;
+  border: 1px dashed var(--ark-line-strong);
+  background: var(--ark-bg);
+  user-select: all;
+  word-break: break-all;
+}
+
+.check-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.check-row input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--ark-signal);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.row-gap {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--ark-muted);
+}
+
+.en-only {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 0.2rem;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--ark-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.form-error::before {
+  content: "▲ ";
+}
