@@ -183,6 +183,30 @@ export function parseMigrationUri(raw: string): OtpUri[] {
   return out;
 }
 
+/** Serialize an account record back into a canonical otpauth:// URI. */
+export function buildOtpUri(a: {
+  style?: string;
+  issuer: string;
+  account: string;
+  secret: string;
+  type: OtpType;
+  algo: Algo;
+  digits: number;
+  period: number;
+  counter?: number;
+}): string {
+  const label = a.issuer ? `${a.issuer}:${a.account}` : a.account;
+  const params = new URLSearchParams({ secret: a.secret });
+  if (a.issuer) params.set("issuer", a.issuer);
+  if (a.style !== "steam") {
+    params.set("algorithm", a.algo);
+    params.set("digits", String(a.digits));
+  }
+  if (a.type === "totp") params.set("period", String(a.period));
+  else params.set("counter", String(a.counter ?? 0));
+  return `otpauth://${a.type}/${encodeURIComponent(label)}?${params.toString()}`;
+}
+
 /** Steam Guard style when the issuer/account smells like Steam/Valve. */
 export function markSteamStyle(list: OtpUri[]): OtpUri[] {
   return list.map((u) =>

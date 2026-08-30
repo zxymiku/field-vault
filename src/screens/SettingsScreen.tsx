@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useApp } from "../state/AppStore";
 import { exportBackup, importBackup } from "../lib/backup";
+import type { AccountRecord } from "../lib/vault";
+import { importExternal } from "../lib/importers";
 import { ArkButton, Field, Panel, SectionTitle } from "../ui/ark";
 
 // Settings: appearance, behavior, security, backup.
@@ -63,16 +65,41 @@ export default function SettingsScreen() {
     setImportError(null);
     setBusy(true);
     try {
-      const list = await importBackup(importText, importPassword);
+      // own encrypted backup first, then external formats (Aegis/2FAS/Bitwarden)
+      let list: AccountRecord[];
+      let format = "";
+      const trimmed = importText.trim();
+      if (trimmed.includes("field-vault-backup-v1")) {
+        list = await importBackup(trimmed, importPassword);
+        format = "FIELD VAULT 备份";
+      } else {
+        const ext = importExternal(trimmed);
+        list = ext.entries.map((u) => ({
+          id: crypto.randomUUID(),
+          style: u.style,
+          issuer: u.issuer,
+          account: u.account,
+          secret: u.secret,
+          type: u.type,
+          algo: u.algo,
+          digits: u.digits,
+          period: u.period,
+          counter: u.counter,
+          createdAt: Date.now(),
+        }));
+        format = ext.format.toUpperCase();
+      }
       await setAccounts([...accounts, ...list]);
-      toast(`已导入 ${list.length} 个账户 / IMPORTED`);
+      toast(`已导入 ${list.length} 个账户（${format}）/ IMPORTED`);
       setImportText("");
       setImportPassword("");
     } catch (e) {
       setImportError(
         e instanceof Error && e.message === "BACKUP_BAD_PASSWORD"
           ? "备份密码不正确 / WRONG BACKUP PASSWORD"
-          : "备份文件无效 / INVALID BACKUP FILE",
+          : e instanceof Error && e.message === "UNSUPPORTED_FORMAT"
+            ? "无法识别的格式——支持本应用备份、Aegis 明文导出、2FAS 未加密备份、Bitwarden JSON"
+            : "文件无效或密码不正确 / INVALID FILE OR WRONG PASSWORD",
       );
     } finally {
       setBusy(false);
@@ -228,7 +255,7 @@ export default function SettingsScreen() {
               </p>
             )}
             <Field
-              label="导入备份 JSON / IMPORT JSON"
+              label="导入 JSON（本应用备份 / Aegis 明文 / 2FAS 未加密 / Bitwarden）"
               mono
               value={importText}
               onChange={(e) => setImportText(e.target.value)}

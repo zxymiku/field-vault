@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useApp } from "../state/AppStore";
+import { buildOtpUri } from "../lib/otpauth";
+import { adapter } from "../lib/tauri";
 import { base32Decode } from "../lib/base32";
 import type { AccountRecord } from "../lib/vault";
 import type { Algo, OtpType } from "../lib/otp";
@@ -21,6 +23,21 @@ export default function AccountDetail(props: { account: AccountRecord; onClose: 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showQr, setShowQr] = useState(false);
+  const qrRef = useRef<HTMLCanvasElement>(null);
+
+  async function toggleQr() {
+    const next = !showQr;
+    setShowQr(next);
+    if (next) {
+      const QR = await import("qrcode");
+      await QR.toCanvas(qrRef.current, buildOtpUri(props.account), {
+        width: 200,
+        margin: 1,
+        color: { dark: "#191919", light: "#f2f2f0" },
+      });
+    }
+  }
 
   async function save() {
     setError(null);
@@ -150,6 +167,22 @@ export default function AccountDetail(props: { account: AccountRecord; onClose: 
                 {error}
               </p>
             )}
+            <div className="secret-line">
+              <span className="ark-field__label">迁移到手机 / MIGRATE TO PHONE</span>
+              <div className="row-gap">
+                <ArkButton onClick={() => void toggleQr()}>
+                  {showQr ? "隐藏二维码 / HIDE QR" : "二维码 / QR"}
+                </ArkButton>
+                <ArkButton
+                  onClick={() => {
+                    void adapter.copyText(buildOtpUri(props.account)).then(() => toast("otpauth 链接已复制 / COPIED"));
+                  }}
+                >
+                  复制链接 / COPY URI
+                </ArkButton>
+              </div>
+              {showQr && <canvas ref={qrRef} className="qr-canvas" aria-label="otpauth 二维码" />}
+            </div>
             <div className="row-gap">
               <ArkButton variant="primary" onClick={() => void save()} disabled={busy}>
                 保存 / SAVE
