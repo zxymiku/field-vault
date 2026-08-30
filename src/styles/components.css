@@ -1016,3 +1016,9 @@
     transition: none;
   }
 }
+
+.qr-canvas {
+  border: 1px solid var(--ark-line-strong);
+  background: #f2f2f0;
+  padding: 0.4rem;
+}
