@@ -26,6 +26,40 @@ npm run tauri dev
 - 首次 Rust 编译较慢（约 5–15 分钟，已配置 crates.io 清华源加速）
 - 数据存放：`%APPDATA%/com.zxymiku.fieldvault/`（`vault.json` + `settings.json`）
 
+## 构建发布版（compile / build）
+
+前置条件与 `tauri dev` 相同：Rust（MSVC 工具链）+ Node ≥ 20；安装器制作工具（NSIS / WiX）由 Tauri 在首次打包时自动下载。
+
+```bash
+# 一条命令完成：前端构建 (tsc + vite) → Rust release 编译 → 打包安装器
+npm run tauri build
+```
+
+产物位置（版本号以 `tauri.conf.json` 为准）：
+
+| 产物 | 路径 |
+|---|---|
+| 绿色单文件 exe（可直接运行） | `src-tauri/target/release/field-vault.exe` |
+| NSIS 安装包 | `src-tauri/target/release/bundle/nsis/FIELD VAULT_0.1.0_x64-setup.exe` |
+| MSI 安装包 | `src-tauri/target/release/bundle/msi/FIELD VAULT_0.1.0_x64_en-US.msi` |
+
+常用变体：
+
+```bash
+# 只出绿色 exe，跳过安装器打包（最快，不下载 NSIS/WiX）
+npm run tauri build -- --no-bundle
+
+# 只要 NSIS 安装包，跳过 MSI（省去 WiX 下载）
+npm run tauri build -- --bundles nsis
+```
+
+说明：
+
+- 首次 release 编译约 10–20 分钟（dev 缓存不共用；已配置 crates.io 清华源加速依赖下载）
+- 升版本号需同步改三处：`src-tauri/tauri.conf.json`、`src-tauri/Cargo.toml`、`package.json`
+- 构建过程即发布校验：`npm run build`（`tsc && vite build`）失败会中断打包
+- 交叉编译：Windows 产物在 Windows 上构建即可；如需 macOS/Linux 版本需在对应平台执行同一命令
+
 ## 浏览器降级模式（QA）
 
 `npm run dev` 后访问 `http://localhost:1420` 可在纯浏览器中运行 UI（无 Tauri IPC 时自动降级 localStorage），便于界面调试与自动化测试；摄像头/屏幕捕获/托盘为 Tauri/WebView2 专属能力。
