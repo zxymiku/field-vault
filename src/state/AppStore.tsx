@@ -30,12 +30,16 @@ export interface Settings {
   theme: "endfield" | "endfield-dark";
   trayEnabled: boolean;
   clipboardClearSeconds: number;
+  autoLockMinutes: number; // 0 = off
+  alwaysOnTop: boolean;
 }
 
 const DEFAULT_SETTINGS: Settings = {
   theme: "endfield",
   trayEnabled: true,
   clipboardClearSeconds: 15,
+  autoLockMinutes: 0,
+  alwaysOnTop: false,
 };
 
 interface StoredSettings extends Settings {
@@ -85,6 +89,7 @@ export function AppProvider(props: { children: ReactNode }) {
   const applySettings = useCallback((s: Settings) => {
     document.documentElement.setAttribute("data-ark-theme", s.theme);
     void adapter.setTrayEnabled(s.trayEnabled).catch(() => undefined);
+    void adapter.setAlwaysOnTop(s.alwaysOnTop).catch(() => undefined);
   }, []);
 
   const toast = useCallback((msg: string) => {
@@ -107,6 +112,8 @@ export function AppProvider(props: { children: ReactNode }) {
             theme: parsed.theme === "endfield-dark" ? "endfield-dark" : "endfield",
             trayEnabled: parsed.trayEnabled,
             clipboardClearSeconds: parsed.clipboardClearSeconds,
+            autoLockMinutes: Math.max(0, Number(parsed.autoLockMinutes) || 0),
+            alwaysOnTop: parsed.alwaysOnTop === true,
           };
         }
       } catch {
@@ -133,6 +140,40 @@ export function AppProvider(props: { children: ReactNode }) {
   useEffect(() => {
     void boot();
   }, [boot]);
+
+  const lastActiveRef = useRef(Date.now());
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
+  useEffect(() => {
+    const markActive = () => {
+      lastActiveRef.current = Date.now();
+    };
+    window.addEventListener("mousemove", markActive, { passive: true });
+    window.addEventListener("keydown", markActive);
+    window.addEventListener("click", markActive);
+    const timer = window.setInterval(() => {
+      const s = settingsRef.current;
+      const minutes = s.autoLockMinutes;
+      if (minutes <= 0) return;
+      if (phaseRef.current !== "ready") return;
+      const file = vaultRef.current;
+      if (file == null || !isEncryptedFile(file)) return; // plaintext never locks
+      if (Date.now() - lastActiveRef.current >= minutes * 60_000) {
+        masterKeyRef.current = null;
+        setAccountsState([]);
+        setPhase("locked");
+      }
+    }, 15_000);
+    return () => {
+      window.removeEventListener("mousemove", markActive);
+      window.removeEventListener("keydown", markActive);
+      window.removeEventListener("click", markActive);
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const persistAccounts = useCallback(async (next: AccountRecord[]) => {
     const file = vaultRef.current;

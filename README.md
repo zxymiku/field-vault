@@ -14,6 +14,8 @@
 | Steam 导入 | **自动扫描本机** Steam Desktop Authenticator（.maFile）/ steamguard-cli（steamguard.json）数据文件导入令牌；识别 Steam 客户端登录账号（loginusers.vdf）；仅导入 shared_secret |
 | 保险库 | 主密码加密（PBKDF2 600k + AES-256-GCM）或明文模式（首启自选）；恢复密钥（一次性展示，忘记密码可重设主密码） |
 | 备份 | 密码加密备份导出（复制 JSON）/ 导入合并（自动去重） |
+| 迁移互操作 | **导入** Aegis 明文导出 / 2FAS 未加密备份 / Bitwarden JSON；**导出** 每账户 otpauth 二维码 + 链接（手机扫码迁移） |
+| 桌面体验 | 空闲自动锁定（分钟数可调，仅加密模式）、窗口置顶开关 |
 | 系统集成 | 托盘常驻（可在设置关闭，关闭后 X 即退出）、复制后 N 秒自动清空剪贴板 |
 | 主题 | endfield 纸白（官方基准）/ endfield 炭黑反转，一键切换 |
 
