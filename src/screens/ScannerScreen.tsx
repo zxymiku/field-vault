@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { parseAnyOtp, type OtpUri } from "../lib/otpauth";
+import { markSteamStyle, parseAnyOtp, type OtpUri } from "../lib/otpauth";
+import { base32Decode } from "../lib/base32";
+import type { OtpType } from "../lib/otp";
 import { decodeFile, decodeVideoFrame, decodeVideoRegion } from "../lib/qr";
 import BindConfirm from "./BindConfirm";
 import { ArkButton, Icon, Panel, SectionTitle } from "../ui/ark";
 
-type Mode = "camera" | "image" | "screen";
+type Mode = "camera" | "image" | "screen" | "manual";
 
-const MODES: { id: Mode; icon: "camera" | "image" | "monitor"; cn: string; en: string }[] = [
+const MODES: { id: Mode; icon: "camera" | "image" | "monitor" | "edit"; cn: string; en: string }[] = [
   { id: "camera", icon: "camera", cn: "摄像头", en: "CAMERA" },
   { id: "image", icon: "image", cn: "扫描图片", en: "IMAGE" },
   { id: "screen", icon: "monitor", cn: "扫描屏幕", en: "SCREEN" },
+  { id: "manual", icon: "edit", cn: "手动添加", en: "MANUAL" },
 ];
 
 export default function ScannerScreen(props: { onDone: () => void }) {
@@ -18,7 +21,7 @@ export default function ScannerScreen(props: { onDone: () => void }) {
 
   function handleResult(text: string) {
     try {
-      setCandidates(parseAnyOtp(text));
+      setCandidates(markSteamStyle(parseAnyOtp(text)));
     } catch {
       // not an otpauth payload — keep scanning silently
     }
@@ -67,12 +70,127 @@ export default function ScannerScreen(props: { onDone: () => void }) {
         <ImageScanner onResult={handleResult} />
       ) : mode === "screen" ? (
         <ScreenScanner onResult={handleResult} onStop={() => setMode(null)} />
+      ) : mode === "manual" ? (
+        <ManualEntry onCandidates={setCandidates} />
       ) : (
         <Panel head="STANDBY · 选择扫描方式" brackets>
           <p className="hint">摄像头 / 图片 / 屏幕三种来源都会汇入同一绑定确认表单。</p>
         </Panel>
       )}
     </div>
+  );
+}
+
+/* ================= manual ================= */
+
+// Text-secret path for Microsoft/Google style setups that only show the
+// key as characters, plus direct otpauth:// URI paste.
+
+function ManualEntry(props: { onCandidates: (list: OtpUri[]) => void }) {
+  const [uriText, setUriText] = useState("");
+  const [secret, setSecret] = useState("");
+  const [issuer, setIssuer] = useState("");
+  const [account, setAccount] = useState("");
+  const [type, setType] = useState<OtpType>("totp");
+  const [style, setStyle] = useState<"default" | "steam">("default");
+  const [error, setError] = useState<string | null>(null);
+
+  function parseUri() {
+    setError(null);
+    try {
+      props.onCandidates(markSteamStyle(parseAnyOtp(uriText)));
+    } catch {
+      setError("不是有效的 otpauth 链接 / INVALID OTPAUTH URI");
+    }
+  }
+
+  function submitFields() {
+    setError(null);
+    try {
+      base32Decode(secret);
+    } catch {
+      setError("密钥不是有效的 Base32 / INVALID BASE32 SECRET");
+      return;
+    }
+    props.onCandidates([
+      {
+        style,
+        issuer,
+        account,
+        secret: secret.toUpperCase(),
+        type: style === "steam" ? "totp" : type,
+        algo: "SHA1",
+        digits: style === "steam" ? 5 : 6,
+        period: 30,
+        counter: type === "hotp" ? 0 : undefined,
+      },
+    ]);
+  }
+
+  return (
+    <Panel head="MANUAL · 手动添加" brackets raised>
+      <div className="stack">
+        <label className="ark-field">
+          <span className="ark-field__label">粘贴 otpauth 链接 / PASTE URI</span>
+          <textarea
+            className="ark-field__input manual-uri"
+            rows={2}
+            value={uriText}
+            onChange={(e) => setUriText(e.target.value)}
+            placeholder="otpauth://totp/..."
+          />
+        </label>
+        <div className="row-gap">
+          <ArkButton variant="primary" onClick={parseUri} disabled={uriText.trim() === ""}>
+            解析链接 / PARSE
+          </ArkButton>
+        </div>
+        <p className="hint">
+          或直接填写文本密钥（Microsoft/Google 设置页会提供一串字母密钥）。
+          <span className="en-only"> / OR ENTER THE TEXT SECRET</span>
+        </p>
+        <div className="bind-grid__row">
+          <label className="ark-field">
+            <span className="ark-field__label">风格 / STYLE</span>
+            <select className="ark-field__input" value={style}
+              onChange={(e) => setStyle(e.target.value as "default" | "steam")}>
+              <option value="default">标准 / STANDARD</option>
+              <option value="steam">Steam 令牌 / STEAM GUARD</option>
+            </select>
+          </label>
+          <label className="ark-field">
+            <span className="ark-field__label">类型 / TYPE</span>
+            <select className="ark-field__input" value={type} onChange={(e) => setType(e.target.value as OtpType)}
+              disabled={style === "steam"}>
+              <option value="totp">TOTP</option>
+              <option value="hotp">HOTP</option>
+            </select>
+          </label>
+          <label className="ark-field">
+            <span className="ark-field__label">机构 / ISSUER</span>
+            <input className="ark-field__input" value={issuer} onChange={(e) => setIssuer(e.target.value)}
+              placeholder="Microsoft / Google / Steam" />
+          </label>
+          <label className="ark-field">
+            <span className="ark-field__label">账户 / ACCOUNT</span>
+            <input className="ark-field__input" value={account} onChange={(e) => setAccount(e.target.value)} />
+          </label>
+        </div>
+        <label className="ark-field">
+          <span className="ark-field__label">密钥 / SECRET (BASE32)</span>
+          <input className="ark-field__input ark-field__input--mono" value={secret}
+            onChange={(e) => setSecret(e.target.value)} placeholder="JBSWY3DPEHPK3PXP" />
+        </label>
+        {error != null && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+        <ArkButton variant="primary" onClick={submitFields} disabled={secret.trim() === ""}>
+          生成绑定表单 / TO BIND FORM
+        </ArkButton>
+      </div>
+    </Panel>
   );
 }
 

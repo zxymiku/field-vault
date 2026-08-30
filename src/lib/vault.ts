@@ -15,6 +15,7 @@ import type { Algo, OtpType } from "./otp";
 
 export interface AccountRecord {
   id: string;
+  style?: "default" | "steam";
   issuer: string;
   account: string;
   secret: string; // base32

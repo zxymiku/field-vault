@@ -54,6 +54,24 @@ export async function totp(
   return hotp(secretB32, Math.floor(nowMs / 1000 / period), algo, digits);
 }
 
+/** Steam Guard alphabet — Steam codes are 5 chars, not digits. */
+const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";
+
+/** Steam Guard TOTP variant: HMAC-SHA1 → dynamic truncation → 5-char code. */
+export async function steamCode(secretB32: string, nowMs: number, period: number): Promise<string> {
+  const counter = Math.floor(nowMs / 1000 / period);
+  const mac = await hmacSha(base32Decode(secretB32), counterMessage(counter), "SHA1");
+  const offset = mac[mac.length - 1] & 0x0f;
+  let cp =
+    ((mac[offset] & 0x7f) << 24) | (mac[offset + 1] << 16) | (mac[offset + 2] << 8) | mac[offset + 3];
+  let out = "";
+  for (let i = 0; i < 5; i++) {
+    out += STEAM_CHARS[cp % STEAM_CHARS.length];
+    cp = Math.floor(cp / STEAM_CHARS.length);
+  }
+  return out;
+}
+
 /** Seconds left before the current TOTP window rolls over. */
 export function secondsRemaining(nowMs: number, period: number): number {
   return period - Math.floor(nowMs / 1000) % period;

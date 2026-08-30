@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../state/AppStore";
-import { hotp, secondsRemaining, totp } from "../lib/otp";
+import { hotp, secondsRemaining, steamCode, totp } from "../lib/otp";
 import { adapter } from "../lib/tauri";
 import { ArkButton, CodeReadout, Icon, Panel, SectionTitle } from "../ui/ark";
 import type { AccountRecord } from "../lib/vault";
@@ -41,7 +41,10 @@ function useVaultCodes(accounts: AccountRecord[], now: number): Map<string, Code
           const remaining = secondsRemaining(now, a.period);
           let code = "……";
           try {
-            code = await totp(a.secret, now, a.period, a.algo, a.digits);
+            code =
+              a.style === "steam"
+                ? await steamCode(a.secret, now, a.period)
+                : await totp(a.secret, now, a.period, a.algo, a.digits);
           } catch {
             code = "ERR";
           }
@@ -169,7 +172,7 @@ export default function VaultScreen(props: { onScan: () => void; onOpen: (a: Acc
                   <span className="acct-row__account">{a.account}</span>
                 </div>
                 <div className="acct-row__meta">
-                  <span className="ark-chip">{a.type === "hotp" ? `HOTP #${a.counter ?? 0}` : `${a.period}s`}</span>
+                  <span className="ark-chip">{a.type === "hotp" ? `HOTP #${a.counter ?? 0}` : a.style === "steam" ? "STEAM" : `${a.period}s`}</span>
                   {copiedId === a.id && <span className="ark-chip ark-chip--state">已复制</span>}
                 </div>
                 {state != null && (

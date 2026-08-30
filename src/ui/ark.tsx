@@ -264,7 +264,7 @@ export function Wedge(props: { progress: number; critical?: boolean }) {
 }
 
 export function CodeReadout(props: { code: string; progress: number; critical?: boolean }) {
-  const half = Math.ceil(props.code.length / 2);
+  const half = props.code.length >= 6 ? Math.ceil(props.code.length / 2) : props.code.length;
   return (
     <span className="ark-readout">
       <span className="ark-readout__code" data-critical={props.critical ? "true" : undefined}>
