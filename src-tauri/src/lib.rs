@@ -16,6 +16,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             store::read_vault,
             store::write_vault,
+            store::delete_vault,
             store::read_settings,
             store::write_settings,
             tray::set_tray_enabled,

@@ -1,9 +1,11 @@
-import { useState } from "react";
 import { AppProvider, useApp } from "./state/AppStore";
 import SetupWizard from "./screens/SetupWizard";
 import LockScreen from "./screens/LockScreen";
 import VaultScreen from "./screens/VaultScreen";
 import ScannerScreen from "./screens/ScannerScreen";
+import SettingsScreen from "./screens/SettingsScreen";
+import AccountDetail from "./screens/AccountDetail";
+import { useState } from "react";
 import { ArkShell, Icon } from "./ui/ark";
 
 type View = "vault" | "scan" | "settings";
@@ -15,8 +17,10 @@ const NAV: { id: View; icon: "vault" | "scan" | "settings"; label: string }[] = 
 ];
 
 function Shell() {
-  const { settings, lock, toastMsg } = useApp();
+  const { settings, lock, toastMsg, accounts } = useApp();
   const [view, setView] = useState<View>("vault");
+  const [openId, setOpenId] = useState<string | null>(null);
+  const openAccount = accounts.find((a) => a.id === openId) ?? null;
 
   return (
     <>
@@ -39,12 +43,11 @@ function Shell() {
           </button>
         }
       >
-        {view === "vault" && <VaultScreen onScan={() => setView("scan")} />}
+        {view === "vault" && <VaultScreen onScan={() => setView("scan")} onOpen={(a) => setOpenId(a.id)} />}
         {view === "scan" && <ScannerScreen onDone={() => setView("vault")} />}
-        {view === "settings" && (
-          <p>设置于 PR8 落地。 / Settings land in PR8.</p>
-        )}
+        {view === "settings" && <SettingsScreen />}
       </ArkShell>
+      {openAccount != null && <AccountDetail account={openAccount} onClose={() => setOpenId(null)} />}
       {toastMsg != null && (
         <output className="ark-toast" role="status">
           {toastMsg}
