@@ -649,3 +649,198 @@
     align-items: center;
   }
 }
+
+/* ============================================================
+   FIELD VAULT — scanner
+   ============================================================ */
+
+.scanner-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.scan-modes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  max-width: 44rem;
+}
+
+.scan-mode-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.75rem 0.9rem;
+  font: inherit;
+  color: var(--ark-muted);
+  background: var(--ark-bg);
+  border: 1px solid var(--ark-line-strong);
+  border-radius: var(--ark-radius);
+  cursor: pointer;
+  transition: border-color var(--ark-motion-direct) var(--ark-ease), color var(--ark-motion-direct) var(--ark-ease);
+}
+
+.scan-mode-tab svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.scan-mode-tab__en {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+}
+
+.scan-mode-tab:hover,
+.scan-mode-tab:focus-visible,
+.scan-mode-tab[data-active="true"] {
+  color: var(--ark-ink);
+  border-color: var(--ark-ink);
+}
+
+.scan-mode-tab[data-active="true"] {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--ark-signal), transparent 74%), transparent 65%);
+  box-shadow: var(--ark-depth-shadow);
+}
+
+.scan-stage {
+  position: relative;
+  max-width: 44rem;
+  aspect-ratio: 4 / 3;
+  background: var(--ark-panel);
+  overflow: hidden;
+  border: 1px solid var(--ark-line-strong);
+}
+
+.scan-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #101010;
+}
+
+.scan-reticle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 46%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--ark-signal), transparent 25%);
+}
+
+.scan-reticle::before,
+.scan-reticle::after {
+  content: "";
+  position: absolute;
+  width: 18%;
+  height: 18%;
+}
+
+.scan-reticle::before {
+  left: -1px;
+  top: -1px;
+  border-left: 3px solid var(--ark-signal);
+  border-top: 3px solid var(--ark-signal);
+}
+
+.scan-reticle::after {
+  right: -1px;
+  bottom: -1px;
+  border-right: 3px solid var(--ark-signal);
+  border-bottom: 3px solid var(--ark-signal);
+}
+
+.scan-stage--region {
+  cursor: crosshair;
+  user-select: none;
+}
+
+.region-rect {
+  position: absolute;
+  border: 2px solid var(--ark-signal);
+  background: color-mix(in srgb, var(--ark-signal), transparent 88%);
+  pointer-events: none;
+}
+
+.scan-hint-overlay {
+  position: absolute;
+  inset: auto 0 0.6rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  color: var(--ark-signal);
+  pointer-events: none;
+}
+
+.scan-device {
+  max-width: 44rem;
+  margin-top: 0.8rem;
+}
+
+.scan-screen-actions {
+  margin-bottom: 0.8rem;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.2rem 1rem;
+  max-width: 44rem;
+  border: 1px dashed var(--ark-line-strong);
+  cursor: pointer;
+  text-align: center;
+  color: var(--ark-muted);
+  transition: border-color var(--ark-motion-direct) var(--ark-ease), background var(--ark-motion-direct) var(--ark-ease);
+}
+
+.dropzone svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.dropzone p {
+  margin: 0;
+  color: var(--ark-ink);
+}
+
+.dropzone:hover,
+.dropzone:focus-visible,
+.dropzone--over {
+  border-color: var(--ark-ink);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--ark-signal), transparent 82%), transparent 60%);
+}
+
+.batch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.batch-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--ark-line);
+}
+
+.bind-grid__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.8rem;
+}

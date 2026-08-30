@@ -3,6 +3,7 @@ import { AppProvider, useApp } from "./state/AppStore";
 import SetupWizard from "./screens/SetupWizard";
 import LockScreen from "./screens/LockScreen";
 import VaultScreen from "./screens/VaultScreen";
+import ScannerScreen from "./screens/ScannerScreen";
 import { ArkShell, Icon } from "./ui/ark";
 
 type View = "vault" | "scan" | "settings";
@@ -39,9 +40,7 @@ function Shell() {
         }
       >
         {view === "vault" && <VaultScreen onScan={() => setView("scan")} />}
-        {view === "scan" && (
-          <p>扫描台于 PR7 落地。 / Scanner lands in PR7.</p>
-        )}
+        {view === "scan" && <ScannerScreen onDone={() => setView("vault")} />}
         {view === "settings" && (
           <p>设置于 PR8 落地。 / Settings land in PR8.</p>
         )}
