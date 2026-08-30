@@ -77,11 +77,11 @@ npm run tauri build -- --bundles nsis
 
 官方 Steam PC 客户端**不存储**可生成令牌的密钥（Steam Guard 密钥只在手机 App 或第三方桌面验证器中）。「自动扫描本机」搜索以下位置：
 
-- 、（递归）与 Steam Desktop Authenticator 安装目录下的 
--  与 
-- （仅读取登录账号名用于身份确认）
+- `我的文档`、`桌面`（递归）与 Steam Desktop Authenticator 安装目录下的 `*.maFile`
+- `%APPDATA%\steamguard-cli\steamguard.json` 与 `~/.config/steamguard-cli/steamguard.json`
+- `C:\Program Files (x86)\Steam\config\loginusers.vdf`（仅读取登录账号名用于身份确认）
 
-注意：已加密的 maFile 需先在原工具中解密；（交易确认密钥）不会被导入。
+注意：已加密的 maFile 需先在原工具中解密；`identity_secret`（交易确认密钥）不会被导入。
 
 ## 已知限制
 
