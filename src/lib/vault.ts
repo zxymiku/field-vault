@@ -61,8 +61,9 @@ export async function writeVaultFile(file: VaultFile): Promise<void> {
 export async function createEncryptedVault(
   accounts: AccountRecord[],
   password: string,
+  recoveryKeyInput?: string,
 ): Promise<{ file: EncryptedVaultFile; recoveryKey: string }> {
-  return createEnc(JSON.stringify(accounts), password);
+  return createEnc(JSON.stringify(accounts), password, recoveryKeyInput);
 }
 
 export async function writePlaintextVault(accounts: AccountRecord[]): Promise<void> {

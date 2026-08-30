@@ -55,7 +55,7 @@ export default function SetupWizard() {
     }
     setBusy(true);
     try {
-      await createVault("encrypted", password);
+      await createVault("encrypted", password, recovery ?? undefined);
       toast("保险库已创建 / VAULT CREATED");
     } finally {
       setBusy(false);

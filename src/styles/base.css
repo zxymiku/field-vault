@@ -330,3 +330,46 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- narrow-viewport recomposition (browser-fallback / tiny windows) ----------
+   Desktop app locks at 980px minimum; this covers QA browsers and portrait contexts. */
+@media (max-width: 760px), (orientation: portrait) {
+  .ark-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--ark-topbar-h) minmax(0, 1fr) auto;
+  }
+  .ark-rail {
+    grid-row: 3;
+    grid-column: 1;
+    flex-direction: row;
+    justify-content: center;
+    border-right: 0;
+    border-top: 1px solid var(--ark-line);
+    padding: 0.25rem 0;
+  }
+  .ark-rail__glyph,
+  .ark-rail__dock {
+    display: none;
+  }
+  .ark-rail__item::before {
+    left: 50%;
+    top: auto;
+    bottom: 2px;
+    translate: -50% 0;
+    width: 0;
+    height: 3px;
+  }
+  .ark-rail__item[aria-current="page"]::before {
+    width: 60%;
+    height: 3px;
+  }
+  .ark-topbar {
+    grid-column: 1;
+  }
+  .ark-stage {
+    grid-column: 1;
+  }
+  .ark-ghost-num {
+    font-size: clamp(6rem, 30vw, 12rem);
+  }
+}
