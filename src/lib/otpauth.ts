@@ -4,6 +4,7 @@
 import type { Algo, OtpType } from "./otp";
 
 export interface OtpUri {
+  style?: "default" | "steam";
   issuer: string;
   account: string;
   secret: string;
@@ -180,6 +181,13 @@ export function parseMigrationUri(raw: string): OtpUri[] {
   }
   if (out.length === 0) throw new Error("QR_MALFORMED");
   return out;
+}
+
+/** Steam Guard style when the issuer/account smells like Steam/Valve. */
+export function markSteamStyle(list: OtpUri[]): OtpUri[] {
+  return list.map((u) =>
+    /steam|valve/i.test(u.issuer) ? { ...u, style: "steam" as const } : u,
+  );
 }
 
 export function looksLikeOtp(text: string): boolean {

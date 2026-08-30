@@ -15,6 +15,7 @@ export default function BindConfirm(props: {
 }) {
   const { accounts, setAccounts, toast } = useApp();
   const first = props.candidates[0];
+  const [style, setStyle] = useState<"default" | "steam">(first.style ?? "default");
   const [issuer, setIssuer] = useState(first.issuer);
   const [account, setAccount] = useState(first.account);
   const [secret, setSecret] = useState(first.secret);
@@ -55,12 +56,13 @@ export default function BindConfirm(props: {
     setBusy(true);
     try {
       const rec = toRecord(first, {
+        style,
         issuer,
         account,
         secret,
         type,
-        algo,
-        digits: Number(digits) === 8 ? 8 : 6,
+        algo: style === "steam" ? "SHA1" : algo,
+        digits: style === "steam" ? 5 : Number(digits) === 8 ? 8 : 6,
         period: Number(period) || 30,
         counter: Number(counter) || 0,
       });
@@ -119,8 +121,20 @@ export default function BindConfirm(props: {
           <div className="stack bind-grid">
             <div className="bind-grid__row">
               <label className="ark-field">
+                <span className="ark-field__label">风格 / STYLE</span>
+                <select
+                  className="ark-field__input"
+                  value={style}
+                  onChange={(e) => setStyle(e.target.value as "default" | "steam")}
+                >
+                  <option value="default">标准 / STANDARD</option>
+                  <option value="steam">Steam 令牌 / STEAM GUARD</option>
+                </select>
+              </label>
+              <label className="ark-field">
                 <span className="ark-field__label">类型 / TYPE</span>
-                <select className="ark-field__input" value={type} onChange={(e) => setType(e.target.value as OtpType)}>
+                <select className="ark-field__input" value={type} onChange={(e) => setType(e.target.value as OtpType)}
+                  disabled={style === "steam"}>
                   <option value="totp">TOTP（时间型）</option>
                   <option value="hotp">HOTP（计数型）</option>
                 </select>
@@ -132,7 +146,8 @@ export default function BindConfirm(props: {
             <div className="bind-grid__row">
               <label className="ark-field">
                 <span className="ark-field__label">算法 / ALGORITHM</span>
-                <select className="ark-field__input" value={algo} onChange={(e) => setAlgo(e.target.value as Algo)}>
+                <select className="ark-field__input" value={algo} onChange={(e) => setAlgo(e.target.value as Algo)}
+                  disabled={style === "steam"}>
                   <option value="SHA1">SHA-1</option>
                   <option value="SHA256">SHA-256</option>
                   <option value="SHA512">SHA-512</option>
@@ -140,7 +155,8 @@ export default function BindConfirm(props: {
               </label>
               <label className="ark-field">
                 <span className="ark-field__label">位数 / DIGITS</span>
-                <select className="ark-field__input" value={digits} onChange={(e) => setDigits(e.target.value)}>
+                <select className="ark-field__input" value={digits} onChange={(e) => setDigits(e.target.value)}
+                  disabled={style === "steam"}>
                   <option value="6">6</option>
                   <option value="8">8</option>
                 </select>
