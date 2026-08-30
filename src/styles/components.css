@@ -1,0 +1,345 @@
+/* ============================================================
+   FIELD VAULT — components: buttons, panels, fields, readouts
+   ============================================================ */
+
+/* ---------- section title: index + bilingual + rule ---------- */
+.ark-section {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+}
+
+.ark-section__index {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+}
+
+.ark-section__index sup {
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  color: var(--ark-muted);
+}
+
+.ark-section__names {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ark-section__cn {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.ark-section__en {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+}
+
+.ark-section__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--ark-line-strong);
+  position: relative;
+}
+
+.ark-section__rule::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--ark-signal);
+}
+
+/* ---------- technical panel ---------- */
+.ark-panel {
+  position: relative;
+  background: var(--ark-surface);
+  border: 1px solid var(--ark-line);
+  padding: 1.1rem 1.2rem;
+  --b: var(--ark-line);
+}
+
+.ark-panel--raised {
+  box-shadow: var(--ark-depth-shadow);
+}
+
+/* corner brackets */
+.ark-panel--brackets::before,
+.ark-panel--brackets::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+
+.ark-panel--brackets::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--ark-ink);
+  border-left: 2px solid var(--ark-ink);
+}
+
+.ark-panel--brackets::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--ark-ink);
+  border-right: 2px solid var(--ark-ink);
+}
+
+.ark-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+}
+
+/* ---------- action button ---------- */
+.ark-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 1.1rem 0.55rem 0.9rem;
+  background: var(--ark-bg);
+  border: 1px solid var(--ark-ink);
+  border-radius: var(--ark-radius);
+  cursor: pointer;
+  font-family: var(--font-cjk);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ark-ink);
+  overflow: hidden;
+  transition:
+    color var(--ark-motion-direct) var(--ark-ease),
+    border-color var(--ark-motion-direct) var(--ark-ease);
+}
+
+.ark-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ark-signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--ark-motion-direct) var(--ark-ease);
+  z-index: 0;
+}
+
+.ark-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ark-btn:hover:not(:disabled)::before,
+.ark-btn:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.ark-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ark-btn--primary::before {
+  transform: scaleX(1);
+}
+
+.ark-btn--primary:hover:not(:disabled) {
+  border-color: var(--ark-ink);
+}
+
+.ark-btn--danger {
+  border-color: var(--ark-danger);
+  color: var(--ark-danger);
+}
+
+.ark-btn--danger::before {
+  background: var(--ark-danger);
+}
+
+.ark-btn--danger:hover:not(:disabled):not(:focus-visible) {
+  color: var(--ark-bg);
+}
+
+.ark-btn__wedge {
+  width: 0.45rem;
+  height: 1em;
+  background: var(--ark-signal);
+  flex: none;
+}
+
+.ark-btn--danger .ark-btn__wedge {
+  background: var(--ark-danger);
+}
+
+/* ---------- text field ---------- */
+.ark-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ark-field__label {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+}
+
+.ark-field__input {
+  padding: 0.5rem 0.7rem;
+  background: var(--ark-bg);
+  border: 1px solid var(--ark-line-strong);
+  border-radius: var(--ark-radius);
+  color: var(--ark-ink);
+  width: 100%;
+}
+
+.ark-field__input:focus {
+  outline: 2px solid var(--ark-ink);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.ark-field__input--mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+/* ---------- code readout (signature instrument) ---------- */
+.ark-readout {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ark-readout__code {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ark-readout__code[data-critical="true"] {
+  animation: ark-flash 600ms steps(2, jump-none) infinite;
+}
+
+@keyframes ark-flash {
+  0% {
+    color: var(--ark-ink);
+  }
+  100% {
+    background: var(--ark-signal);
+    color: var(--ark-on-signal);
+  }
+}
+
+/* calibration wedge: drains as the code expires, state-driven */
+.ark-wedge {
+  --p: 1;
+  position: relative;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: none;
+}
+
+.ark-wedge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(var(--ark-signal) calc(var(--p) * 360deg), transparent 0deg);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.ark-wedge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ark-line-strong);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.ark-wedge[data-critical="true"]::before {
+  animation: ark-breathe 900ms linear infinite;
+}
+
+/* ---------- chips / status ---------- */
+.ark-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid var(--ark-line-strong);
+  border-radius: var(--ark-radius);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+  white-space: nowrap;
+}
+
+.ark-chip--state {
+  border-color: color-mix(in srgb, var(--ark-state), transparent 40%);
+  color: var(--ark-ink);
+  background: color-mix(in srgb, var(--ark-state), transparent 78%);
+}
+
+/* ---------- toast ---------- */
+.ark-toast {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 3rem;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--ark-panel);
+  color: var(--ark-on-panel);
+  border-left: 4px solid var(--ark-signal);
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  box-shadow: var(--ark-depth-shadow);
+  clip-path: inset(0 0 0 0);
+}
+
+/* ---------- view transition choreography ---------- */
+.ark-view-enter {
+  animation: ark-view-in var(--ark-motion-reveal) var(--ark-ease) both;
+}
+
+@keyframes ark-view-in {
+  from {
+    clip-path: inset(0 0 0 100%);
+    transform: translateX(16px);
+  }
+  to {
+    clip-path: inset(0);
+    transform: none;
+  }
+}

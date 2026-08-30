@@ -1,0 +1,74 @@
+/* ============================================================
+   FIELD VAULT — ark-ui design tokens
+   family: endfield (field engineering system)
+   depth:  maximal (4 / 极繁)
+   Family vars own identity (ink/paper/signal/geometry character).
+   Depth vars own coverage (layers, instrumentation, motion budget).
+   ============================================================ */
+
+:root {
+  /* depth defaults — maximal */
+  --ark-depth-stage-opacity: 0.85;
+  --ark-depth-grid-opacity: 0.10;
+  --ark-depth-tick-opacity: 0.35;
+  --ark-depth-ghost-opacity: 0.16;
+  --ark-depth-shadow: 0.35rem 0.35rem 0 0 color-mix(in srgb, var(--ark-ink), transparent 84%);
+  --ark-motion-direct: 240ms;
+  --ark-motion-reveal: 650ms;
+  --ark-motion-attention: 1800ms;
+  --ark-ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ark-radius: 2px;
+  --ark-rule: 1px;
+  --ark-rail-w: 4.5rem;
+  --ark-topbar-h: 4.25rem;
+
+  /* type stacks — safe system faces, no licensed webfonts */
+  --font-cjk: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+  --font-display: "Arial Narrow", "Roboto Condensed", "DIN Condensed", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "SFMono-Regular", monospace;
+}
+
+/* ---------- endfield · paper (light, official baseline) ---------- */
+[data-ark-theme="endfield"] {
+  --ark-bg: #f2f2f0;
+  --ark-ink: #191919;
+  --ark-signal: #fffa00;
+  --ark-state: #00ffa2;
+  --ark-muted: #6f6f6f;
+  --ark-line: color-mix(in srgb, #191919, transparent 82%);
+  --ark-line-strong: color-mix(in srgb, #191919, transparent 55%);
+  --ark-surface: #ffffff;
+  --ark-surface-2: #e9e9e6;
+  --ark-panel: rgba(25, 25, 25, 0.92);
+  --ark-on-panel: #f2f2f0;
+  --ark-on-signal: #191919;
+  --ark-danger: #c2410c;
+  color-scheme: light;
+}
+
+/* ---------- endfield · charcoal (dark inversion) ---------- */
+[data-ark-theme="endfield-dark"] {
+  --ark-bg: #191919;
+  --ark-ink: #f2f2f0;
+  --ark-signal: #fffa00;
+  --ark-state: #00ffa2;
+  --ark-muted: #9a9a9a;
+  --ark-line: color-mix(in srgb, #f2f2f0, transparent 84%);
+  --ark-line-strong: color-mix(in srgb, #f2f2f0, transparent 55%);
+  --ark-surface: #202020;
+  --ark-surface-2: #232323;
+  --ark-panel: rgba(242, 242, 240, 0.94);
+  --ark-on-panel: #191919;
+  --ark-on-signal: #191919;
+  --ark-danger: #ff8a5c;
+  color-scheme: dark;
+}
+
+/* depth knob — lower to degrade composition toward complex */
+[data-ark-depth="maximal"] {
+  --ark-depth-stage-opacity: 0.85;
+}
+[data-ark-depth="complex"] {
+  --ark-depth-stage-opacity: 0.5;
+  --ark-depth-ghost-opacity: 0.1;
+}
